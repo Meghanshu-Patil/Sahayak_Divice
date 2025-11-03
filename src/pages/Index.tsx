@@ -4,27 +4,41 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Shield, ShieldCheck, Sparkles } from "lucide-react";
+import axios from "axios";
 
 const Index = () => {
   const [deviceId, setDeviceId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!deviceId.trim()) {
       toast.error("Please enter a device ID");
       return;
     }
+    
 
-    setIsSubmitting(true);
+    try {
+      const res = await axios.post("http://localhost:5000/Device/check-device", { diviceId: deviceId });
+      console.log(res.data);
+      if (res.data.success === false) {
+        toast.error("This Device ID is not registered");
+        return;
+      }
 
-    // Simulate API call
-    setTimeout(() => {
-      toast.success("Device authorization request submitted successfully!");
-      setDeviceId("");
-      setIsSubmitting(false);
-    }, 1500);
+      setIsSubmitting(true);
+
+      // Simulate API call
+      setTimeout(() => {
+        toast.success("Device authorization  successfull");
+        setDeviceId("");
+        setIsSubmitting(false);
+      }, 1500);
+    } catch (error: any) {
+      console.error("Error submitting device ID:", error);
+      toast.error(error.response?.data?.message || "Failed to submit authorization request. Please try again.");
+    }
   };
 
   return (
